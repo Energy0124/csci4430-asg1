@@ -1,0 +1,11 @@
+CC = gcc
+CFLAGS= -std=c99
+LIB = -lsocket -lnsl
+
+all: server client
+
+server: server.c
+	$(CC) -o $@ $< ${CFLAGS} ${LIB}
+
+client: client.c
+	$(CC) -o $@ $< ${CFLAGS} ${LIB}
