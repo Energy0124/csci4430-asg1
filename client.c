@@ -10,6 +10,7 @@
 
 # define PORT 12345
 
+static const int BUFF_SIZE = 130;
 int sd = 0;
 
 void sig_handler(int signum) {
@@ -42,16 +43,22 @@ int main(int argc, char **argv) {
 
     while (1) {
 //        printf("Type the message you would like to send. Type 'exit' to exit.\n");
-        char buff[100];
-        memset(buff, 0, 100);
-        scanf("%s", buff);
+        char buff[BUFF_SIZE];
+        memset(buff, 0, BUFF_SIZE);
+        char *result = fgets(buff, BUFF_SIZE, stdin);
         int len;
         // send message to server
         if ((len = send(sd, buff, strlen(buff), 0)) < 0) {
             printf("Send Error: %s (Errno:%d)\n", strerror(errno), errno);
             exit(0);
         }
-        if (strcmp(buff, "exit") == 0) {
+        if (feof(stdin)||result==NULL) {
+            buff[0] = 4;
+            buff[1] = '\0';
+            if ((len = send(sd, buff, strlen(buff), 0)) < 0) {
+                printf("Send Error: %s (Errno:%d)\n", strerror(errno), errno);
+                exit(0);
+            }
             close(sd);
             break;
         }

@@ -13,6 +13,7 @@
 
 # define PORT 12345
 
+static const int BUFF_SIZE = 130;
 static const int MAX_CONNECTION = 50;
 static int message_count = 0;
 static int sd = 0;
@@ -39,12 +40,18 @@ void *respond_to_client(void *_tmp_argv) {
     inet_ntop(AF_INET, &(client_addr.sin_addr), ip_str, INET_ADDRSTRLEN);
 
     while (1) {
-        char buff[100];
+        char buff[BUFF_SIZE];
         int len;
         // receive message from the client
         if ((len = recv(client_sd, buff, sizeof(buff), 0)) <= 0) {
             printf("receive error: %s (Errno:%d)\n", strerror(errno), errno);
             exit(1);
+        }
+
+        if (buff[0] == 4) {
+//            printf("Connection from %s, Port %d ended.\n", ip_str, client_addr.sin_port);
+            close(client_sd);
+            break;
         }
         // Lock the mutex
         pthread_mutex_lock(mutex);
@@ -53,14 +60,17 @@ void *respond_to_client(void *_tmp_argv) {
         pthread_mutex_unlock(mutex);
 
 
-        if (strcmp("exit", buff) == 0) {
-            close(client_sd);
-            break;
-        }
-
         buff[len] = '\0';
-        printf("Message %d, From %s, Port %d: ", message_count, ip_str,client_addr.sin_port );
-        if (strlen(buff) != 0) printf("%s\n", buff);
+        printf("Message %d, From %s, Port %d: ", message_count, ip_str, client_addr.sin_port);
+        if (strlen(buff) > 0) {
+
+            if (buff[len - 1] == '\n') {
+                printf("%s", buff);
+            } else {
+                printf("%s\n", buff);
+
+            }
+        }
     }
     return 0;
 
@@ -124,8 +134,8 @@ int main(int argc, char **argv) {
 
         common_thread_argv.mutex = &mutex;
         common_thread_argv.client_sd = client_sd;
-        common_thread_argv.client_addr=client_addr;
-        common_thread_argv.client_addr.sin_addr=client_addr.sin_addr;
+        common_thread_argv.client_addr = client_addr;
+        common_thread_argv.client_addr.sin_addr = client_addr.sin_addr;
 
         // Thread ID
         pthread_t thread_id;
