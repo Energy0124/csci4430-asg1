@@ -7,6 +7,7 @@
 # include <sys/types.h>
 # include <netinet/in.h>
 # include <arpa/inet.h>
+#include <netdb.h>
 
 # define PORT 12345
 
@@ -32,8 +33,12 @@ int main(int argc, char **argv) {
     struct sockaddr_in server_addr;
     memset(&server_addr, 0, sizeof(server_addr));
     server_addr.sin_family = AF_INET;
-    server_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
-    server_addr.sin_port = htons(PORT);
+    struct hostent *he = gethostbyname(argv[1]);
+//    struct in_addr ** addrList;
+//    addrList=(struct in_addr**)he->h_addr_list;
+//    server_addr.sin_addr.s_addr = inet_addr(inet_ntoa(*addrList[0]));
+    memcpy(&server_addr.sin_addr, he->h_addr_list[0], (size_t) he->h_length);
+    server_addr.sin_port = htons((uint16_t) atoi(argv[2]));
 
     // connect the socket to the server using the address struct
     if (connect(sd, (struct sockaddr *) &server_addr, sizeof(server_addr)) < 0) {
@@ -52,7 +57,7 @@ int main(int argc, char **argv) {
             printf("Send Error: %s (Errno:%d)\n", strerror(errno), errno);
             exit(0);
         }
-        if (feof(stdin)||result==NULL) {
+        if (feof(stdin) || result == NULL) {
             buff[0] = 4;
             buff[1] = '\0';
             if ((len = send(sd, buff, strlen(buff), 0)) < 0) {
