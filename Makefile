@@ -1,14 +1,14 @@
-CPPC = g++
-CPPFLAGS= -std=c++11
+CC = gcc
+CFLAGS= -std=c99
 LIB =
 
 all: server client
 
-server: server.cpp
-	$(CPPC) -o $@ $< ${CPPFLAGS} ${LIB}
+server: server.c
+	$(CC) -o $@ $< ${CFLAGS} ${LIB}
 
-client: client.cpp
-	$(CPPC) -o $@ $< ${CPPFLAGS} ${LIB}
+client: client.c
+	$(CC) -o $@ $< ${CFLAGS} ${LIB}
 
 clean:
 	rm server client

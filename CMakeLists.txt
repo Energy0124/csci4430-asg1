@@ -4,9 +4,9 @@ project(csci4430_asg1)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_C_STANDARD 99)
 
-set(SOURCE_FILES_SERVER server.cpp)
+set(SOURCE_FILES_SERVER server.c)
 add_executable(csci4430_asg1_server ${SOURCE_FILES_SERVER})
-set(SOURCE_FILES_CLIENT client.cpp client.cpp)
+set(SOURCE_FILES_CLIENT client.c client.c)
 add_executable(csci4430_asg1_client ${SOURCE_FILES_CLIENT})
 
 set(SOURCE_FILES_TCP_SERVER tcp_sample/server.c)
