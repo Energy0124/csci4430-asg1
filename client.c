@@ -1,12 +1,13 @@
-# include <stdio.h>
-# include <stdlib.h>
-# include <unistd.h>
-# include <string.h>
-# include <errno.h>
-# include <sys/socket.h>
-# include <sys/types.h>
-# include <netinet/in.h>
-# include <arpa/inet.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <errno.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <signal.h>
 #include <netdb.h>
 
 # define PORT 12345
