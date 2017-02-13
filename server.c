@@ -14,6 +14,7 @@
 
 static const int MAX_CONNECTION = 50;
 static int message_count = 0;
+static int sd = 0;
 
 // The thread argument struct
 struct thread_argv {
@@ -22,6 +23,7 @@ struct thread_argv {
 };
 
 void sig_handler(int signum) {
+    close(sd);
     exit(0);
 }
 
@@ -69,7 +71,7 @@ int main(int argc, char **argv) {
     signal(SIGQUIT, sig_handler);
 
     // create a TCP socket
-    int sd = socket(AF_INET, SOCK_STREAM, 0);
+    sd = socket(AF_INET, SOCK_STREAM, 0);
 
     // reuse server port to avoid "bind: address already in use"
     int val = 1;
@@ -126,6 +128,5 @@ int main(int argc, char **argv) {
 
     }
 
-    close(sd);
     return 0;
 }
