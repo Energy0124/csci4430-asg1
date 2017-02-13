@@ -7,6 +7,8 @@
 # include <sys/types.h>
 # include <netinet/in.h>
 #include <pthread.h>
+#include <signal.h>
+
 
 # define PORT 12345
 
@@ -18,6 +20,10 @@ struct thread_argv {
     int client_sd;
     pthread_mutex_t *mutex;
 };
+
+void sig_handler(int signum) {
+    exit(0);
+}
 
 void *respond_to_client(void *_tmp_argv) {
     // Copy thread arguments to this thread
@@ -56,6 +62,12 @@ void *respond_to_client(void *_tmp_argv) {
 
 
 int main(int argc, char **argv) {
+
+    signal(SIGINT, sig_handler);
+    signal(SIGKILL, sig_handler);
+    signal(SIGTERM, sig_handler);
+    signal(SIGQUIT, sig_handler);
+
     // create a TCP socket
     int sd = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -104,7 +116,7 @@ int main(int argc, char **argv) {
         struct thread_argv common_thread_argv;
 
         common_thread_argv.mutex = &mutex;
-        common_thread_argv.client_sd=client_sd;
+        common_thread_argv.client_sd = client_sd;
 
         // Thread ID
         pthread_t thread_id;
