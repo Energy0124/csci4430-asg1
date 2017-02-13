@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS= -std=c99
-LIB =
+LIB = -pthread
 
 all: server client
 

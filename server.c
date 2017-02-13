@@ -8,6 +8,7 @@
 #include <netinet/in.h>
 #include <pthread.h>
 #include <signal.h>
+#include <arpa/inet.h>
 
 
 # define PORT 12345
@@ -20,6 +21,7 @@ static int sd = 0;
 struct thread_argv {
     int client_sd;
     pthread_mutex_t *mutex;
+    struct sockaddr_in client_addr;
 };
 
 void sig_handler(int signum) {
@@ -32,6 +34,9 @@ void *respond_to_client(void *_tmp_argv) {
     struct thread_argv *tmp_argv = (struct thread_argv *) _tmp_argv;
     int client_sd = tmp_argv->client_sd;
     pthread_mutex_t *mutex = tmp_argv->mutex;
+    struct sockaddr_in client_addr = tmp_argv->client_addr;
+    char ip_str[INET_ADDRSTRLEN];
+    inet_ntop(AF_INET, &(client_addr.sin_addr), ip_str, INET_ADDRSTRLEN);
 
     while (1) {
         char buff[100];
@@ -47,18 +52,18 @@ void *respond_to_client(void *_tmp_argv) {
         // Unlock the mutex
         pthread_mutex_unlock(mutex);
 
-        buff[len] = '\0';
-        printf("[ %d ]", message_count);
-        printf("RECEIVED INFO: ");
-        if (strlen(buff) != 0)printf("%s\n", buff);
 
         if (strcmp("exit", buff) == 0) {
             close(client_sd);
             break;
         }
-    }
 
+        buff[len] = '\0';
+        printf("Message %d, From %s, Port %d: ", message_count, ip_str,client_addr.sin_port );
+        if (strlen(buff) != 0) printf("%s\n", buff);
+    }
     return 0;
+
 
 }
 
@@ -119,6 +124,8 @@ int main(int argc, char **argv) {
 
         common_thread_argv.mutex = &mutex;
         common_thread_argv.client_sd = client_sd;
+        common_thread_argv.client_addr=client_addr;
+        common_thread_argv.client_addr.sin_addr=client_addr.sin_addr;
 
         // Thread ID
         pthread_t thread_id;
