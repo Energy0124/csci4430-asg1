@@ -53,14 +53,10 @@ int main(int argc, char **argv) {
         memset(buff, 0, BUFF_SIZE);
         char *result = fgets(buff, BUFF_SIZE, stdin);
         int len;
-        // send message to server
-        if ((len = send(sd, buff, strlen(buff), 0)) < 0) {
-            printf("Send Error: %s (Errno:%d)\n", strerror(errno), errno);
-            exit(0);
-        }
         if (feof(stdin) || result == NULL) {
             buff[0] = 4;
-            buff[1] = '\0';
+            buff[1] = '\n';
+            buff[2] = '\0';
             if ((len = send(sd, buff, strlen(buff), 0)) < 0) {
                 printf("Send Error: %s (Errno:%d)\n", strerror(errno), errno);
                 exit(0);
@@ -68,6 +64,12 @@ int main(int argc, char **argv) {
             close(sd);
             break;
         }
+        // send message to server
+        if ((len = send(sd, buff, strlen(buff), 0)) < 0) {
+            printf("Send Error: %s (Errno:%d)\n", strerror(errno), errno);
+            exit(0);
+        }
+
 //        printf("Your message have been sent.\n");
     }
     return 0;
